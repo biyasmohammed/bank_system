@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corporate Bank</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    #container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="text"],
+    input[type="number"] {
+      padding: 5px;
+    }
+    input[type="submit"] {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .action-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .logout-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Corporate Bank</h1>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    // Function to render the customer details on the frontend
+    function renderCustomerDetails(data) {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <h2>Hello, ${data.name}</h2>
+        <p>Account Number: ${data.current_ac}</p>
+        <p>Balance: Rs.${data.ac_balance}</p>
+        <div class="action-container">
+          <form id="deposit-form">
+            <label for="deposit-amount">Deposit Amount:</label>
+            <input type="number" id="deposit-amount" required>
+            <input type="submit" value="Deposit">
+          </form>
+          <form id="withdrawal-form">
+            <label for="withdrawal-amount">Withdraw Amount:</label>
+            <input type="number" id="withdrawal-amount" required>
+            <input type="submit" value="Withdraw">
+          </form>
+          <form id="transfer-form">
+            <label for="recipient-mobile">Recipient Mobile:</label>
+            <input type="number" id="recipient-mobile" required>
+            <label for="transfer-amount">Transfer Amount:</label>
+            <input type="number" id="transfer-amount" required>
+            <input type="submit" value="Transfer">
+          </form>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      `;
+
+      // Add event listeners to the forms and logout button
+      const depositForm = document.getElementById('deposit-form');
+      const withdrawalForm = document.getElementById('withdrawal-form');
+      const transferForm = document.getElementById('transfer-form');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      depositForm.addEventListener('submit', handleDeposit);
+      withdrawalForm.addEventListener('submit', handleWithdrawal);
+      transferForm.addEventListener('submit', handleTransfer);
+      logoutBtn.addEventListener('click', logout);
+    }
+
+    // Function to handle deposit form submission
+    function handleDeposit(event) {
+      event.preventDefault();
+      const amount = parseFloat(document.getElementById('deposit-amount').value);
+      if (!isNaN(amount) && amount > 0) {
+        // Call the backend deposit function with the amount
+        // Replace the 'YOUR_BACKEND_URL' with the actual backend URL
+        fetch('YOUR_BACKEND_URL/deposit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ amount })
+        })
+        .then(response => response.json())
+        .then(data => renderCustomerDetails(data))
+        .catch(error => console.error('Error:', error));
+      }
+    }
+
+    // Function to handle withdrawal form submission
+    function handleWithdrawal(event) {
+      event.preventDefault();
+      const amount = parseFloat(document.getElementById('withdrawal-amount').value);
+      if (!isNaN(amount) && amount > 0) {
+        // Call the backend withdrawal function with the amount
+        // Replace the 'YOUR_BACKEND_URL' with the actual backend URL
+        fetch('YOUR_BACKEND_URL/withdrawal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ amount })
+        })
+        .then(response => response.json())
+        .then(data => renderCustomerDetails(data))
+        .catch(error => console.error('Error:', error));
+      }
+    }
+
+    // Function to handle transfer form submission
+    function handleTransfer(event) {
+      event.preventDefault();
+      const recipientMobile = parseInt(document.getElementById('recipient-mobile').value);
+      const amount = parseFloat(document.getElementById('transfer-amount').value);
+      if (!isNaN(recipientMobile) && !isNaN(amount) && recipientMobile !== '' && amount > 0) {
+        // Call the backend transfer function with the recipient's mobile and amount
+        // Replace the 'YOUR_BACKEND_URL' with the actual backend URL
+        fetch('YOUR_BACKEND_URL/transfer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ recipientMobile, amount })
+        })
+        .then(response => response.json())
+        .then(data => renderCustomerDetails(data))
+        .catch(error => console.error('Error:', error));
+      }
+    }
+
+    // Function to logout
+    function logout() {
+      // Clear the content and remove event listeners
+      const content = document.getElementById('content');
+      content.innerHTML = '';
+      // Replace the 'YOUR_BACKEND_URL' with the actual backend URL
+      fetch('YOUR_BACKEND_URL/logout')
+        .then(response => response.json())
+        .then(data => renderLoginForm())
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Function to render the login form on the frontend
+    function renderLoginForm() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <h2>Login</h2>
+        <form id="login-form">
+          <label for="account-no">Account Number:</label>
+          <input type="number" id="account-no" required>
+          <label for="account-pin">PIN:</label>
+          <input type="number" id="account-pin" required>
+          <input type="submit" value="Login">
+        </form>
+      `;
+
+      // Add event listener to the login form
+      const loginForm = document.getElementById('login-form');
+      loginForm.addEventListener('submit', handleLogin);
+    }
+
+    // Function to handle login form submission
+    function handleLogin(event) {
+      event.preventDefault();
+      const accountNo = parseInt(document.getElementById('account-no').value);
+      const accountPin = parseInt(document.getElementById('account-pin').value);
+      if (!isNaN(accountNo) && !isNaN(accountPin) && accountNo !== '' && accountPin !== '') {
+        // Call the backend login function with the account number and PIN
+        // Replace the 'YOUR_BACKEND_URL' with the actual backend URL
+        fetch('YOUR_BACKEND_URL/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ accountNo, accountPin })
+        })
+        .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            console.error('Invalid credentials');
+          }
+        })
+        .then(data => {
+          if (data) {
+            renderCustomerDetails(data);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+    }
+
+    // Initial render: render the login form
+    renderLoginForm();
+  </script>
+</body>
+</html>
